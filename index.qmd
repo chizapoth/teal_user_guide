@@ -1,0 +1,22 @@
+---
+title: "Teal User Guide"
+# image: misc/logo_dan.png
+about:
+  id: hero-heading
+  template: trestles
+  image-shape: rectangle
+  links:
+    - icon: github
+      text: Github
+      href: https://github.com/chizapoth/teal_user_guide
+---
+
+::: {#hero-heading}
+
+This is the **unofficial guide** for the teal app.
+
+For official documentation, please refer to [insightengineering](https://github.com/insightsengineering/teal) and [pharmaverse](https://pharmaverse.org/)
+
+Any feedback / mistake corrections are welcome, you can find me [here](https://chizapoth.github.io). 
+
+:::

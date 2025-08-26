@@ -1,0 +1,26 @@
+project:
+  type: website
+  output-dir: docs
+  render:
+    - "*.qmd" # first render all qmd files
+    - "!do_not_render/*.qmd" # but ignore everything in this folder
+    - "!dev/*.qmd"
+website:
+  page-navigation: true
+  title: "Teal user guide"
+
+  navbar:
+    left:
+      - href: nest/index.qmd
+        text: NEST
+  
+    right: 
+      - icon: github
+        href: https://github.com/chizapoth/teal_user_guide
+        
+format:
+  html:
+    theme: yeti
+    # css: styles.css
+    toc: true
+

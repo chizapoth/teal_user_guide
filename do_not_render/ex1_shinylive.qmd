@@ -1,0 +1,52 @@
+---
+title: "Exercise 1"
+---
+
+### Example
+
+Using `iris` and `mtcars` datasets.
+
+```{r ex, message = FALSE}
+# load teal and all dependent packages
+library(teal)
+
+# create empty `teal_data` object
+data <- teal_data()
+
+# execute code within it
+data <- within(data, {
+  IRIS <- iris
+  MTCARS <- mtcars
+})
+
+app <- init(
+  data = data,
+  modules = list(
+    example_module()
+  )
+)
+
+if (Sys.getenv("QUARTO_ROOT") == "") {
+  shinyApp(app$ui, app$server)
+}
+```
+
+```{r save_script, include = FALSE}
+code <- paste0(knitr::knit_code$get("ex"), collapse = "\n")
+writeLines(code, "exercise_1.R") # this writes the code to a file
+```
+
+
+```{r parse_shinylive_url, include = FALSE}
+url <- roxy.shinylive::create_shinylive_url(code)
+url_editor <- roxy.shinylive::create_shinylive_url(code, mode = "editor")
+```
+
+
+### App
+
+```{r shinylive_iframe, echo = FALSE, out.width = '150%', out.extra = 'style = "position: relative; z-index:1"', purl = FALSE}
+knitr::include_url(url, height = "800px")
+```
+
+

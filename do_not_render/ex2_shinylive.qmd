@@ -1,0 +1,77 @@
+---
+title: "Exercise 2"
+---
+
+
+
+```{r ex, message = FALSE}
+library(dplyr)
+library(teal.modules.general)
+library(teal.modules.clinical)
+library(teal)
+
+app <- init(
+  # add data
+  data = teal_data(iris = iris),
+  
+  # add modules (as a list)
+  modules = list(
+    module(
+      label = "iris histogram",
+      
+      # server
+      server = function(input, output, session, data) {
+        
+        
+        updateSelectInput(session = session,
+                          inputId =  "var",
+                          choices = names(data()[["iris"]])[1:4])
+        
+        # plot
+        output$hist <- renderPlot({
+          req(input$var)
+          hist(
+            x = data()[["iris"]][[input$var]],
+            main = sprintf("Histogram of %s", input$var),
+            xlab = input$var
+          )
+        })
+      },
+      
+      # ui
+      ui = function(id) {
+        ns <- NS(id)
+        list(
+          selectInput(inputId = ns("var"),
+                      label =  "Column name",
+                      choices = NULL),
+          plotOutput(outputId = ns("hist"))
+        )
+      }
+    )
+  )
+)
+
+if (Sys.getenv("QUARTO_ROOT") == "") {
+  shinyApp(app$ui, app$server)
+}
+
+# shinyApp(app$ui, app$server)
+```
+
+```{r save_script, include = FALSE}
+code <- paste0(knitr::knit_code$get("ex"), collapse = "\n")
+writeLines(code, "exercise_2.R")
+```
+
+```{r parse_shinylive_url, include = FALSE}
+url <- roxy.shinylive::create_shinylive_url(code)
+url_editor <- roxy.shinylive::create_shinylive_url(code, mode = "editor")
+```
+
+### App
+
+```{r shinylive_iframe, echo = FALSE, out.width = '150%', out.extra = 'style = "position: relative; z-index:1"', purl = FALSE}
+knitr::include_url(url, height = "800px")
+```
+

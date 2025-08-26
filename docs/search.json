@@ -1,0 +1,142 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Teal User Guide",
+    "section": "",
+    "text": "Github\n  \n\n  \n  \nThis is the unofficial guide for the teal app.\nFor official documentation, please refer to insightengineering and pharmaverse\nAny feedback / mistake corrections are welcome, you can find me here."
+  },
+  {
+    "objectID": "test_shinylive_embed.html",
+    "href": "test_shinylive_embed.html",
+    "title": "test shinylive",
+    "section": "",
+    "text": "Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see https://quarto.org."
+  },
+  {
+    "objectID": "test_shinylive_embed.html#quarto",
+    "href": "test_shinylive_embed.html#quarto",
+    "title": "test shinylive",
+    "section": "",
+    "text": "Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see https://quarto.org."
+  },
+  {
+    "objectID": "test_shinylive_embed.html#running-code",
+    "href": "test_shinylive_embed.html#running-code",
+    "title": "test shinylive",
+    "section": "Running Code",
+    "text": "Running Code\nWhen you click the Render button a document will be generated that includes both content and the output of embedded code. You can embed code like this:\n#| '!! shinylive warning !!': |\n#|   shinylive does not work in self-contained HTML documents.\n#|   Please set `embed-resources: false` in your metadata.\n#| standalone: true\n#| viewerHeight: 800\nlibrary(shiny)\nui &lt;- fluidPage(\n  titlePanel(\"Hello Shiny!\"),\n  sidebarLayout(\n    sidebarPanel(\n      sliderInput(\n        inputId = \"bins\",\n        label = \"Number of bins:\",\n        min = 1,\n        max = 50,\n        value = 30\n      )\n    ),\n    mainPanel(\n      plotOutput(outputId = \"distPlot\")\n    )\n  )\n)\nserver &lt;- function(input, output) {\n  output$distPlot &lt;- renderPlot({\n    x &lt;- faithful$waiting\n    bins &lt;- seq(min(x), max(x), length.out = input$bins + 1)\n    hist(x,\n      breaks = bins, col = \"#75AADB\", border = \"white\",\n      xlab = \"Waiting time to next eruption (in mins)\",\n      main = \"Histogram of waiting times\"\n    )\n  })\n}\nshinyApp(ui = ui, server = server)\nWhat aboout teal app?\n#| '!! shinylive warning !!': |\n#|   shinylive does not work in self-contained HTML documents.\n#|   Please set `embed-resources: false` in your metadata.\n#| standalone: true\n#| viewerHeight: 800\n\nlibrary(dplyr)\nlibrary(teal.modules.general)\nlibrary(teal.modules.clinical)\n\n# data ----\n# Prepare data object\n# ? what does default_cdisc_join_keys do?\ndata &lt;- teal_data()\ndata &lt;- within(data, {\n  ADSL &lt;- rADSL\n})\njoin_keys(data) &lt;- default_cdisc_join_keys[\"ADSL\"]\n\n\n# define inputs ----\n# Prepare module inputs\n# this step is not strictly necessary, since only one dataset is involved\nADSL &lt;- data[[\"ADSL\"]]\n\n\n# choices_selected is from teal.transform\n# define arm \n# ARMCD: arm code (a, b, c)\n# ARM: arm name (drug, placebo, combination)\n# (probably always fixed)\ncs_arm_var &lt;- choices_selected(\n  choices = variable_choices(ADSL, subset = c(\"ARMCD\", \"ARM\")),\n  selected = \"ARM\"\n)\n\n\n# demographic variables\n# selected the numeric and factor variables\n# i.e. date, dttm, chr are excluded\ndemog_vars_adsl &lt;- ADSL |&gt;\n  select(where(is.numeric) | where(is.factor)) |&gt;\nADSL |&gt;\n  select(!(where(is.numeric) | where(is.factor))) |&gt;\n  names()\n\n# tm_data_table -----\nmod_dt &lt;- tm_data_table(\"Data Table\")\n\n\n# tm_t_summary -----\nmod_summary &lt;- tm_t_summary(\n  label = \"Demographic Table\",\n  \n  # add which dataset to use\n  dataname = \"ADSL\",\n  arm_var = cs_arm_var,\n  summarize_vars = choices_selected(\n    choices = variable_choices(ADSL, demog_vars_adsl),\n    selected = c(\"SEX\", \"AGE\", \"RACE\")\n  )\n)\n\n\n# _______ -----\n# Create app -----\napp &lt;- init(\n  # single data source: adsl\n  data = data,\n  modules = list(\n\n    # module 1, display data\n    mod_dt,\n\n    # module 2, summary table\n    mod_summary,\n  )\n  # for medical history: use data 2\n  # data = data2,\n  #module = mod_mh\n\n)\n\nif (Sys.getenv(\"QUARTO_ROOT\") == \"\") {\n  shinyApp(app$ui, app$server)\n}"
+  },
+  {
+    "objectID": "ex1_shinylive.html",
+    "href": "ex1_shinylive.html",
+    "title": "Exercise 1",
+    "section": "",
+    "text": "Example\nUsing iris and mtcars datasets.\n\n# load teal and all dependent packages\nlibrary(teal)\n\n# create empty `teal_data` object\ndata &lt;- teal_data()\n\n# execute code within it\ndata &lt;- within(data, {\n  IRIS &lt;- iris\n  MTCARS &lt;- mtcars\n})\n\napp &lt;- init(\n  data = data,\n  modules = list(\n    example_module()\n  )\n)\n\nif (Sys.getenv(\"QUARTO_ROOT\") == \"\") {\n  shinyApp(app$ui, app$server)\n}\n\n\n\nApp"
+  },
+  {
+    "objectID": "ex2_shinylive.html",
+    "href": "ex2_shinylive.html",
+    "title": "Exercise 2",
+    "section": "",
+    "text": "library(dplyr)\nlibrary(teal.modules.general)\nlibrary(teal.modules.clinical)\nlibrary(teal)\n\napp &lt;- init(\n  # add data\n  data = teal_data(iris = iris),\n  \n  # add modules (as a list)\n  modules = list(\n    module(\n      label = \"iris histogram\",\n      \n      # server\n      server = function(input, output, session, data) {\n        \n        \n        updateSelectInput(session = session,\n                          inputId =  \"var\",\n                          choices = names(data()[[\"iris\"]])[1:4])\n        \n        # plot\n        output$hist &lt;- renderPlot({\n          req(input$var)\n          hist(\n            x = data()[[\"iris\"]][[input$var]],\n            main = sprintf(\"Histogram of %s\", input$var),\n            xlab = input$var\n          )\n        })\n      },\n      \n      # ui\n      ui = function(id) {\n        ns &lt;- NS(id)\n        list(\n          selectInput(inputId = ns(\"var\"),\n                      label =  \"Column name\",\n                      choices = NULL),\n          plotOutput(outputId = ns(\"hist\"))\n        )\n      }\n    )\n  )\n)\n\nif (Sys.getenv(\"QUARTO_ROOT\") == \"\") {\n  shinyApp(app$ui, app$server)\n}\n\n# shinyApp(app$ui, app$server)\n\n\nApp"
+  },
+  {
+    "objectID": "ex_clinical.html",
+    "href": "ex_clinical.html",
+    "title": "Exercise 2",
+    "section": "",
+    "text": "library(dplyr)\nlibrary(teal)\nlibrary(teal.modules.general)\nlibrary(teal.modules.clinical)\n\n# data ----\n# Prepare data object\n# ? what does default_cdisc_join_keys do?\ndata &lt;- teal_data()\ndata &lt;- within(data, {\n  ADSL &lt;- rADSL\n})\njoin_keys(data) &lt;- default_cdisc_join_keys[\"ADSL\"]\n\n\n# define inputs ----\n# Prepare module inputs\n# this step is not strictly necessary, since only one dataset is involved\nADSL &lt;- data[[\"ADSL\"]]\n\n\n# choices_selected is from teal.transform\n# define arm \n# ARMCD: arm code (a, b, c)\n# ARM: arm name (drug, placebo, combination)\n# (probably always fixed)\ncs_arm_var &lt;- choices_selected(\n  choices = variable_choices(ADSL, subset = c(\"ARMCD\", \"ARM\")),\n  selected = \"ARM\"\n)\n\n\n# demographic variables\n# selected the numeric and factor variables\n# i.e. date, dttm, chr are excluded\ndemog_vars_adsl &lt;- ADSL |&gt;\n  select(where(is.numeric) | where(is.factor)) |&gt;\n  names()\n\n\n\n# these are the excluded ones (study ID, subject ID, ...)\n# ADSL |&gt;\n#   select(!(where(is.numeric) | where(is.factor))) |&gt;\n#   names()\n\n\n# tm_data_table -----\nmod_dt &lt;- tm_data_table(\"Data Table\")\n\n\n# tm_t_summary -----\nmod_summary &lt;- tm_t_summary(\n  label = \"Demographic Table\",\n  \n  # add which dataset to use\n  dataname = \"ADSL\",\n  arm_var = cs_arm_var,\n  summarize_vars = choices_selected(\n    choices = variable_choices(ADSL, demog_vars_adsl),\n    selected = c(\"SEX\", \"AGE\", \"RACE\")\n  )\n)\n\n\n# _______ -----\n# Create app -----\napp &lt;- init(\n  # single data source: adsl\n  data = data,\n  modules = list(\n    \n    # module 1, display data\n    mod_dt,\n    \n    # module 2, summary table\n    mod_summary\n  )\n  # for medical history: use data 2\n  # data = data2,\n  #module = mod_mh\n  \n)\n\nif (Sys.getenv(\"QUARTO_ROOT\") == \"\") {\n  shinyApp(app$ui, app$server)\n}\n\n# shinyApp(app$ui, app$server)\n\n\nApp"
+  },
+  {
+    "objectID": "nest/index.html",
+    "href": "nest/index.html",
+    "title": "Catelogue",
+    "section": "",
+    "text": "There are a lot of information to take in. Better be structured."
+  },
+  {
+    "objectID": "nest/index.html#shiny",
+    "href": "nest/index.html#shiny",
+    "title": "Catelogue",
+    "section": "Shiny",
+    "text": "Shiny\n\n\n\n\n\n\nTitle\n\n\n\nDescription\n\n\n\n\n\n\n\n\nShiny and shiny modules\n\n\nUnderstand the basic behaviors \n\n\n\n\n\n\nShiny reactivity\n\n\nLearn about reactivity \n\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "nest/index.html#teal",
+    "href": "nest/index.html#teal",
+    "title": "Catelogue",
+    "section": "Teal",
+    "text": "Teal\n\n\n\n\n\n\nTitle\n\n\n\nDescription\n\n\n\n\n\n\n\n\nTeal 101\n\n\nAn overview of Teal project \n\n\n\n\n\n\nTeal custom modules\n\n\nNotes on how to create custom modules \n\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "nest/teal_101.html",
+    "href": "nest/teal_101.html",
+    "title": "Teal 101",
+    "section": "",
+    "text": "Getting started with Teal\nTeal workshop PHUSE CSS 2025\nTeal gallery: sample apps based on teal framework\nTeal technical blueprint\nVideo: a complete guide to getting started with teal. This video breaks down the components in a teal app, very useful"
+  },
+  {
+    "objectID": "nest/teal_101.html#running-my-first-app",
+    "href": "nest/teal_101.html#running-my-first-app",
+    "title": "Teal 101",
+    "section": "Running my first app",
+    "text": "Running my first app\nMandatory arguments: data, module\nLoads:\n\nshiny\nteal.data\nteal.code\nteal.slice\n\nMain panel (Active Module Content)):\n\nshows two modules that loads IRIS data\ncan have multiple\n\nSide (right) (Filter Panel):\n\nactive filter summary: number of observations\nactive filter variables\n\n\nTeal packages\n\nteal.data: defines data of teal app\nteal.slice: defines data filtering before passing into modules\n\nAnd others"
+  },
+  {
+    "objectID": "nest/teal_101.html#creating-a-teal-app",
+    "href": "nest/teal_101.html#creating-a-teal-app",
+    "title": "Teal 101",
+    "section": "Creating a teal app",
+    "text": "Creating a teal app\nThe bare bone structure is like this below:\n\nlibrary(teal)\n\napp &lt;- init(\n    data = data, \n    modules = modules)\n\nshinyApp(ui = app$ui, server = app$server)\n\nData\n\nInput: data.frame, cdisc data format data.frame, multi-asset objects\nteal_data(), if data is common across modules\nteal_data_module() if data is different\n\nModules\n\nteal.modules.general(): data.frame\nteal.modules.clinical(): cdisc data\nteal.modules.hermes(): multi-asset objects (check out TLG.catelog, biomarker.catelog)\n\n\nPart 1: teal_data()\nCreates an S4 object, &lt;teal_data&gt;\nSlots: env, datanames, code, verified, join_keys (only useful for cdisc)\nMethods: …\n\n# create a single data object \ndata &lt;- teal_data(\n  MTCARS = head(mtcars)\n)"
+  },
+  {
+    "objectID": "nest/teal_101.html#pharmaverse",
+    "href": "nest/teal_101.html#pharmaverse",
+    "title": "Teal 101",
+    "section": "Pharmaverse",
+    "text": "Pharmaverse\nHow does teal fit in the pharmaverse ecosystem? (Examples)\n\nSDTM\n\n\nADaM\n\n\nTLG\nCalculation and analysis\n\ntern: analysis functions for tables and graphs in clinical trial reporting\nosprey:\ngoshawk\nhermes\n\n\n\nInteractive (teal)\nCalculations above link to the teal modules to add interactivity. In addition to teal.moduels.general, we have\n\ntern -&gt; teal.modules.clinical\nosprey -&gt; teal.osprey\ngoshawk -&gt; teal.goshawk\nhermes -&gt; teal.modules.hermes"
+  },
+  {
+    "objectID": "nest/shiny_101.html",
+    "href": "nest/shiny_101.html",
+    "title": "Shiny and shiny modules",
+    "section": "",
+    "text": "Some new technology related to shiny"
+  },
+  {
+    "objectID": "nest/shiny_101.html#get-started",
+    "href": "nest/shiny_101.html#get-started",
+    "title": "Shiny and shiny modules",
+    "section": "Get started",
+    "text": "Get started\nIn an empty R script, type shiny, then a snippet should pop up to provide you with a template that contains to key components.\nTips\n\nrun the entire script\n\nAnatomy of a standard shiny app: 3 components\n\nui function\nserver function\nshinyApp function that combines the two parts above\n\n\n# load the package\nlibrary(shiny)\n\n# ui\nui &lt;- page_fluid()\n\n# server\nserver &lt;- function(input, output, session){}\n\n# combines the two\nshinyApp(ui = ui, server = server)\n# shinyApp(ui = app$ui, server = app$server)\n\nServer functions\n\ninside ui, we have defined variables with inputID = x, outputID = 'scatterplot'; in the server these are called upon\nobjects to be displayed should be saved to outputs$\ninput values should be referred to with inputs$\nreactive objects should be built with render*() functions (renderPlot, renderText, renderTable etc)"
+  },
+  {
+    "objectID": "nest/shiny_101.html#modules",
+    "href": "nest/shiny_101.html#modules",
+    "title": "Shiny and shiny modules",
+    "section": "Modules",
+    "text": "Modules\nMake the code more organized. Essentially wrapping components of UI / server into functions, then call the functions in the app.\n\nVery useful tutorial by Jonas Hagenberg: Structure your app: introduction to Shiny modules\n(More advanced) Talk by Eric Nantz: Effective use of Shiny modules in application development\n\nCareful design: what does the module do? what is it trying to accomplish?\nInput and return values: static or reactive inputs? complexity of return values; which outputs serve as inputs for other modules?\n\nModule structure\nThis is how the shiny app with modules look like\n\n# ui\nui &lt;- page_fluid(\n  \n  # other UI elements\n  # ...\n  #\n  # module UI\n  module_UI(id = 'id_1')\n  # can have more than one\n)\n\n# server\nserver &lt;- function(input, output, session){\n  \n  # other server part\n  # ...\n  # module \n  module_server(id = 'id_1')\n  # can have more than one\n}\n\n# combines the two\nshinyApp(ui = ui, server = server)\n\nDefine the modules\n\n# define the UI part\nmodule_UI &lt;- function(id){\n  \n  # namespaced id for input and output\n  ns &lt;- NS(id)\n  \n  # this is just a fancy list\n  tagList(\n    # your UI elements\n  )\n}\n\n# define the server part\nmodule_server &lt;- function(id){\n  moduleServer(\n    id, \n    function(input, output, session){\n      \n    }\n  )\n  \n}"
+  },
+  {
+    "objectID": "nest/shiny_101.html#serverless-shiny",
+    "href": "nest/shiny_101.html#serverless-shiny",
+    "title": "Shiny and shiny modules",
+    "section": "Serverless shiny",
+    "text": "Serverless shiny\nMaking use of webR\nshinylive::export(from_here, to_there)\nUse GHA to deploy the app\nPublic! No secrets"
+  },
+  {
+    "objectID": "nest/shiny_reactivity.html",
+    "href": "nest/shiny_reactivity.html",
+    "title": "Shiny reactivity",
+    "section": "",
+    "text": "Reactive programming\nKey idea: specify a graph of dependencies, so that when an input changes, all related output are updated automatically.\nUsual way in R: procedural. You tell what to do and when. Imperative programming\nn &lt;- 1\nresult &lt;- 1 + n\nn &lt;- 2\nresult &lt;- 1 + n\nReactive programming: define how to do something; when the right condition meets. Declarative programming\nresult &lt;- reactive({\n  1 + input$n\n})"
+  },
+  {
+    "objectID": "nest/shiny_reactivity.html#reactivity",
+    "href": "nest/shiny_reactivity.html#reactivity",
+    "title": "Shiny reactivity",
+    "section": "Reactivity",
+    "text": "Reactivity\n\nui &lt;- fluidPage(\n  textInput(\"name\", \"What's your name?\"),\n  textOutput(\"greeting\")\n)\n\nserver &lt;- function(input, output, session) {\n  output$greeting &lt;- renderText({\n    paste0(\"Hello \", input$name, \"!\")\n  })\n}\n\nRun the app\nEvery time the input$name changes, the output also changes. The reactivity simply means that every time a user updates the browser input, the developer does not need to re-run the program. The output is automatically updated by itself.\nMy understanding: the developer only needs to develop the reactive code, then leaves everything to the user. The program reacts to the input\n\nOrder of execution\nReactive graph: describes how inputs and outputs are connected.\n\n\nReactive context\nReactive values can only be used inside reactive contexts. Access reactive values outside reactive context will lead to an error. E.g.\n\nserver &lt;- function(input, output){\n  print(input$num)\n}\n# this results in an error, as 'print' is not a reactive context\n\n\nAny render*() is a reactive context\nUse observe({...}) access reactive variable: it is a reactive context\n\n\n# this is the correct way to print\nserver &lt;- function(input, output){\n  observe({ \n    print(input$num) # put in the reactive context\n  })\n  \n}\n\n\n\nReactive expressions / variables\nCan create a reactive variable using reactive({}), which is a reactive context.\nThe order of these two lines below doesn’t matter.\n\nserver &lt;- function(input, output, session) {\n  \n  # define a reactive expression here\n  string &lt;- reactive(paste0(\"Hello \", input$name, \"!\"))\n  # can not simply do the line below:\n  # paste0(\"Hello \", input$name, \"!\")\n  \n  # call it \n  output$greeting &lt;- renderText(string())\n}\n\nAccess custom reactive variables like a function: need the (). For example, call string() rather than string.\n\nserver &lt;- function(input, output){\n  # create a reactive variable\n  x &lt;- reactive({\n    input$num + 1\n  })  \n\n  observe({\n    print(input$num)\n    print(x()) # with ()\n  })\n}"
+  }
+]
