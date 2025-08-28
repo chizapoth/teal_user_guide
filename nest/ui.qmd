@@ -1,0 +1,50 @@
+---
+title: "UI topics"
+description: |
+  HTML basics, relevant for shiny
+author: "Chi Zhang"
+date: "2025-08-28"
+categories: [Shiny]
+sidebar: false
+code-block-bg: true
+code-block-border-left: true
+highlight-style: tango
+format: 
+  html:
+    toc: true
+    toc-depth: 2
+    code-fold: false
+    code-tools: false
+---
+
+These are topics that are relevant for understand how the UI is made of.
+
+```{r}
+library(htmltools) # imported by shiny
+tagList(
+  h1("Title"),
+  h2("Header text"),
+  p("Text here")
+)
+```
+
+
+
+
+```{r}
+tags$html(
+  tags$head(
+    tags$title('My first page')
+  ),
+  tags$body(
+    h1('My first heading'),
+    p('My first paragraph, with some ', strong('bold'), ' text.'),
+    div(
+      id = 'myDiv', 
+      class = 'simpleDiv',
+      'Here is a div with some attributes.'
+     )
+  )
+)
+```
+

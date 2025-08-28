@@ -8,6 +8,7 @@ categories: [Teal]
 sidebar: false
 code-block-bg: true
 code-block-border-left: true
+highlight-style: tango
 format: 
   html:
     toc: true

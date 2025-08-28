@@ -60,14 +60,14 @@
     "href": "nest/index.html#shiny",
     "title": "Catelogue",
     "section": "Shiny",
-    "text": "Shiny\n\n\n\n\n\n\nTitle\n\n\n\nDescription\n\n\n\n\n\n\n\n\nShiny and shiny modules\n\n\nUnderstand the basic behaviors \n\n\n\n\n\n\nShiny reactivity\n\n\nLearn about reactivity \n\n\n\n\n\n\nNo matching items"
+    "text": "Shiny\n\n\n\n\n\n\nTitle\n\n\n\n\n\n\n\n\nShiny and shiny modules\n\n\n\n\n\n\nShiny reactivity\n\n\n\n\n\n\nUI topics\n\n\n\n\n\n\nShinylive extension to Quarto website\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "nest/index.html#teal",
     "href": "nest/index.html#teal",
     "title": "Catelogue",
     "section": "Teal",
-    "text": "Teal\n\n\n\n\n\n\nTitle\n\n\n\nDescription\n\n\n\n\n\n\n\n\nTeal 101\n\n\nAn overview of Teal project \n\n\n\n\n\n\nTeal custom modules\n\n\nNotes on how to create custom modules \n\n\n\n\n\n\nNo matching items"
+    "text": "Teal\n\n\n\n\n\n\nTitle\n\n\n\n\n\n\n\n\nTeal 101\n\n\n\n\n\n\nTeal custom modules\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "nest/teal_101.html",
@@ -116,7 +116,7 @@
     "href": "nest/shiny_101.html#modules",
     "title": "Shiny and shiny modules",
     "section": "Modules",
-    "text": "Modules\nMake the code more organized. Essentially wrapping components of UI / server into functions, then call the functions in the app.\n\nVery useful tutorial by Jonas Hagenberg: Structure your app: introduction to Shiny modules\n(More advanced) Talk by Eric Nantz: Effective use of Shiny modules in application development\n\nCareful design: what does the module do? what is it trying to accomplish?\nInput and return values: static or reactive inputs? complexity of return values; which outputs serve as inputs for other modules?\n\nModule structure\nThis is how the shiny app with modules look like\n\n# ui\nui &lt;- page_fluid(\n  \n  # other UI elements\n  # ...\n  #\n  # module UI\n  module_UI(id = 'id_1')\n  # can have more than one\n)\n\n# server\nserver &lt;- function(input, output, session){\n  \n  # other server part\n  # ...\n  # module \n  module_server(id = 'id_1')\n  # can have more than one\n}\n\n# combines the two\nshinyApp(ui = ui, server = server)\n\nDefine the modules\n\n# define the UI part\nmodule_UI &lt;- function(id){\n  \n  # namespaced id for input and output\n  ns &lt;- NS(id)\n  \n  # this is just a fancy list\n  tagList(\n    # your UI elements\n  )\n}\n\n# define the server part\nmodule_server &lt;- function(id){\n  moduleServer(\n    id, \n    function(input, output, session){\n      \n    }\n  )\n  \n}"
+    "text": "Modules\nMake the code more organized. Essentially wrapping components of UI / server into functions, then call the functions in the app.\n\nVery useful tutorial by Jonas Hagenberg: Structure your app: introduction to Shiny modules\n(More advanced) Talk by Eric Nantz: Effective use of Shiny modules in application development\n\nCareful design: what does the module do? what is it trying to accomplish?\nInput and return values: static or reactive inputs? complexity of return values; which outputs serve as inputs for other modules?\n\nModule structure\nThis is how the shiny app with modules look like\n\n# ui\nui &lt;- page_fluid(\n  \n  # other UI elements\n  # ...\n  #\n  # module UI\n  module_UI(id = 'id_1')\n  # can have more than one\n)\n\n# server\nserver &lt;- function(input, output, session){\n  \n  # other server part\n  # ...\n  # module \n  module_server(id = 'id_1')\n  # can have more than one\n}\n\n# combines the two\nshinyApp(ui = ui, server = server)\n\nDefine the modules\n\n# define the UI part\nmodule_UI &lt;- function(id){\n  \n  # namespaced id for input and output\n  ns &lt;- NS(id)\n  \n  # this is just a fancy list\n  tagList(\n    # your UI elements\n  )\n}\n\n# define the server part\nmodule_server &lt;- function(id){\n  moduleServer(\n    id, \n    function(input, output, session){\n      \n    }\n  )\n}"
   },
   {
     "objectID": "nest/shiny_101.html#serverless-shiny",
@@ -130,13 +130,90 @@
     "href": "nest/shiny_reactivity.html",
     "title": "Shiny reactivity",
     "section": "",
-    "text": "Reactive programming\nKey idea: specify a graph of dependencies, so that when an input changes, all related output are updated automatically.\nUsual way in R: procedural. You tell what to do and when. Imperative programming\nn &lt;- 1\nresult &lt;- 1 + n\nn &lt;- 2\nresult &lt;- 1 + n\nReactive programming: define how to do something; when the right condition meets. Declarative programming\nresult &lt;- reactive({\n  1 + input$n\n})"
+    "text": "Key idea: specify a graph of dependencies, so that when an input changes, all related output are updated automatically.\nUsual way in R: procedural. You tell what to do and when. Imperative programming\nn &lt;- 1\nresult &lt;- 1 + n\nn &lt;- 2\nresult &lt;- 1 + n\nReactive programming: define how to do something; when the right condition meets. Declarative programming\nresult &lt;- reactive({\n  1 + input$n\n})"
   },
   {
     "objectID": "nest/shiny_reactivity.html#reactivity",
     "href": "nest/shiny_reactivity.html#reactivity",
     "title": "Shiny reactivity",
     "section": "Reactivity",
-    "text": "Reactivity\n\nui &lt;- fluidPage(\n  textInput(\"name\", \"What's your name?\"),\n  textOutput(\"greeting\")\n)\n\nserver &lt;- function(input, output, session) {\n  output$greeting &lt;- renderText({\n    paste0(\"Hello \", input$name, \"!\")\n  })\n}\n\nRun the app\nEvery time the input$name changes, the output also changes. The reactivity simply means that every time a user updates the browser input, the developer does not need to re-run the program. The output is automatically updated by itself.\nMy understanding: the developer only needs to develop the reactive code, then leaves everything to the user. The program reacts to the input\n\nOrder of execution\nReactive graph: describes how inputs and outputs are connected.\n\n\nReactive context\nReactive values can only be used inside reactive contexts. Access reactive values outside reactive context will lead to an error. E.g.\n\nserver &lt;- function(input, output){\n  print(input$num)\n}\n# this results in an error, as 'print' is not a reactive context\n\n\nAny render*() is a reactive context\nUse observe({...}) access reactive variable: it is a reactive context\n\n\n# this is the correct way to print\nserver &lt;- function(input, output){\n  observe({ \n    print(input$num) # put in the reactive context\n  })\n  \n}\n\n\n\nReactive expressions / variables\nCan create a reactive variable using reactive({}), which is a reactive context.\nThe order of these two lines below doesn’t matter.\n\nserver &lt;- function(input, output, session) {\n  \n  # define a reactive expression here\n  string &lt;- reactive(paste0(\"Hello \", input$name, \"!\"))\n  # can not simply do the line below:\n  # paste0(\"Hello \", input$name, \"!\")\n  \n  # call it \n  output$greeting &lt;- renderText(string())\n}\n\nAccess custom reactive variables like a function: need the (). For example, call string() rather than string.\n\nserver &lt;- function(input, output){\n  # create a reactive variable\n  x &lt;- reactive({\n    input$num + 1\n  })  \n\n  observe({\n    print(input$num)\n    print(x()) # with ()\n  })\n}"
+    "text": "Reactivity\n\nui &lt;- fluidPage(\n  textInput(\"name\", \"What's your name?\"),\n  textOutput(\"greeting\")\n)\n\nserver &lt;- function(input, output, session) {\n  output$greeting &lt;- renderText({\n    paste0(\"Hello \", input$name, \"!\")\n  })\n}\n\nRun the app\nEvery time the input$name changes, the output also changes. The reactivity simply means that every time a user updates the browser input, the developer does not need to re-run the program. The output is automatically updated by itself.\nMy understanding: the developer only needs to develop the reactive code, then leaves everything to the user. The program reacts to the input\n\nOrder of execution\nReactive graph: describes how inputs and outputs are connected.\n\n\nReactive context\nReactive values can only be used inside reactive contexts. Access reactive values outside reactive context will lead to an error. E.g.\n\nserver &lt;- function(input, output){\n  print(input$num)\n}\n# this results in an error, as 'print' is not a reactive context\n\n\nAny render*() is a reactive context\nUse observe({...}) access reactive variable: it is a reactive context\n\n\n# this is the correct way to print\nserver &lt;- function(input, output){\n  observe({ \n    print(input$num) # put in the reactive context\n  })\n  \n}\n\n\n\nReactive expressions / variables\nCan create a reactive variable using reactive({}), which is a reactive context.\nThe order of these two lines below doesn’t matter.\n\nserver &lt;- function(input, output, session) {\n  \n  # define a reactive expression here\n  string &lt;- reactive(paste0(\"Hello \", input$name, \"!\"))\n  # can not simply do the line below:\n  # paste0(\"Hello \", input$name, \"!\")\n  \n  # call it \n  output$greeting &lt;- renderText(string())\n}\n\nAccess custom reactive variables like a function: need the (). For example, call string() rather than string.\n\nserver &lt;- function(input, output){\n  # create a reactive variable\n  x &lt;- reactive({\n    input$num + 1\n  })  \n\n  observe({\n    print(input$num)\n    print(x()) # with ()\n  })\n}\n\n\n\nObserve, observeEvent\nshiny::observe creates observer. It updates input’s value. Does not have a return value. It gets executed when the reactive values (e.g. input$value) it depends on changes.\nCommon use: updateSelectInput, updateSliderInput, updateTextInput to change the input value.\n\n# example from custom module\nshiny::observe({\n  shiny::updateSelectInput( \n    session,\n    \"dataset\",\n    choices = names(data())\n  )\n})\n\nThis observe block runs every time input data changes.\nshiny::observeEvent is a special case of observe. It only focuses on one specific change. That is why it has an additional argument, eventExpr, which specifies the event to listen to.\n\n# specify what to watch\nobserveEvent(input$dataset, { \n  req(input$dataset) \n  numeric_vars &lt;- names(data()[[input$dataset]])[sapply(data()[[input$dataset]], is.numeric)]\n  shiny::updateSelectInput(\n    session,  \n    \"variable\", \n    choices = numeric_vars)\n})"
+  },
+  {
+    "objectID": "nest/teal_custom.html",
+    "href": "nest/teal_custom.html",
+    "title": "Teal custom modules",
+    "section": "",
+    "text": "The technology underneath is shiny modules.\nThere are 4 steps:"
+  },
+  {
+    "objectID": "nest/teal_custom.html#ui-part",
+    "href": "nest/teal_custom.html#ui-part",
+    "title": "Teal custom modules",
+    "section": "UI part",
+    "text": "UI part\nTwo things to provide: data and variable.\n\nlibrary(teal)\n\n# UI function for the custom histogram module\nhistogram_module_ui &lt;- function(id) {\n  ns &lt;- shiny::NS(id)\n  shiny::tagList(\n    shiny::selectInput(\n      ns(\"dataset\"),\n      \"Select Dataset\",\n      choices = c(\"iris\", \"mtcars\")\n    ),\n    shiny::selectInput(\n      ns(\"variable\"),\n      \"Select Variable\",\n      choices = c(names(iris), names(mtcars))\n    ),\n    shiny::plotOutput(ns(\"histogram_plot\")),\n    shiny::verbatimTextOutput(ns(\"plot_code\")) # To display the reactive plot code\n  )\n}"
+  },
+  {
+    "objectID": "nest/teal_custom.html#server-part",
+    "href": "nest/teal_custom.html#server-part",
+    "title": "Teal custom modules",
+    "section": "Server part",
+    "text": "Server part\nRequires teal_data object.\nTo call the data, use data() - treat it as a function.\n\n# names of data: gives list of datasets inside the teal_data obj\nnames(data())\n# access specific data\ndata()[[input$dataset]] # might also just use $\n\n\n# Server function for the custom histogram module with injected variables in within()\nhistogram_module_server &lt;- function(id, data) {\n  \n  moduleServer(id, function(input, output, session) {\n   \n1    shiny::observe({\n      shiny::updateSelectInput( \n        session,\n        \"dataset\",\n        choices = names(data())\n      )\n    })\n\n2    observeEvent(input$dataset, {\n      req(input$dataset) # Ensure dataset is selected\n      numeric_vars &lt;- names(data()[[input$dataset]])[sapply(data()[[input$dataset]], is.numeric)]\n3      shiny::updateSelectInput(\n        session,  \n        \"variable\", \n        choices = numeric_vars)\n    })\n\n    \n    \n    # Create a reactive `teal_data` object with the histogram plot\n    result &lt;- reactive({\n      req(input$dataset, input$variable) # Ensure dataset and variable are selected\n\n      # Create a new teal_data object with the histogram plot\n4      new_data &lt;- within(\n        data(),\n        {\n5          my_plot &lt;- hist(\n            input_dataset[[input_vars]],\n            las = 1,\n            main = paste(\"Histogram of\", input_vars),\n            xlab = input_vars,\n            col = \"lightblue\",\n            border = \"black\"\n          )\n        },\n        \n6        input_dataset = as.name(input$dataset),\n7        input_vars = input$variable\n      )\n      new_data\n    })\n\n    # Render the histogram from the updated teal_data object\n8    output$histogram_plot &lt;- shiny::renderPlot({\n      result()[[\"my_plot\"]] \n    })\n\n    # Reactive expression to get the generated code for the plot\n    output$plot_code &lt;- shiny::renderText({\n9      teal.code::get_code(result())\n    })\n  })\n}\n\n\n1\n\nUpdate dataset choices based on available datasets in teal_data. observe is used because it needs to run every time data changes.\n\n2\n\nobserveEvent watches the changes in dataset selection. It gets updated when it changes - because different datasets have different variable names.\n\n3\n\nUpdate variable choices based on selected dataset, only including numeric variables\n\n4\n\nThis is a modified version of data(). Injected input$dataset and input$variable into within().\n\n5\n\nThis is where the function is positioned\n\n6\n\nReplace input_dataset with input$dataset\n\n7\n\nReplace input_vars with input$variable\n\n8\n\nAccess and render the plot stored in new_data\n\n9\n\nRetrieve and display the code for the updated teal_data object"
+  },
+  {
+    "objectID": "nest/teal_custom.html#custom-module-function",
+    "href": "nest/teal_custom.html#custom-module-function",
+    "title": "Teal custom modules",
+    "section": "Custom module function",
+    "text": "Custom module function\n\ncreate_histogram_module &lt;- function(label = \"Histogram Module\") {\n1  teal::module(\n    label = label,\n    ui = histogram_module_ui,\n    server = histogram_module_server,\n2    datanames = \"all\"\n  )\n}\n\n\n1\n\nuse teal::module() to wrap the UI and server together.\n\n2\n\nthe module has access to all datasets in the teal_data object. Datasets with names starting with . are not included"
+  },
+  {
+    "objectID": "nest/teal_custom.html#integration",
+    "href": "nest/teal_custom.html#integration",
+    "title": "Teal custom modules",
+    "section": "Integration",
+    "text": "Integration\nFinally, embed the module into your app.\n\n# Define datasets in `teal_data`\ndata_obj &lt;- teal_data(\n  iris = iris,\n  mtcars = mtcars\n)\n\n# Initialize the teal app\napp &lt;- init(\n1  data = data_obj,\n2  modules = modules(create_histogram_module())\n)\n\n# Run the app\nif (interactive()) {\n  shiny::shinyApp(ui = app$ui, server = app$server)\n}\n\n\n1\n\ncall the data object created above\n\n2\n\ncall the custom module function created above. Do not forget the ()."
+  },
+  {
+    "objectID": "nest/shiny_reactivity.html#ns-and-ns",
+    "href": "nest/shiny_reactivity.html#ns-and-ns",
+    "title": "Shiny reactivity",
+    "section": "NS and ns",
+    "text": "NS and ns\nNamespace. NS is the function, ns is the object created by NS(id).\n\nNS takes one argument: id. It returns a function (a namespacing function).\nns &lt;- NS(id) is the standard first line of a UI module function.\nns function remembers the ID you assigned.\n\n\nns &lt;- shiny::NS(namespace = '1')\nns('my_button') # returns \"1-my_button\"\n\n[1] \"1-my_button\"\n\n\nThe purpose of having NS and namespace is to avoid ID collisions when you use the same module multiple times in a single app.\n\nui_module_ui &lt;- function(id) {\n  # 1. Create the namespacing function `ns`\n  ns &lt;- shiny::NS(id) \n\n  # 2. Use `ns` to wrap every ID\n  tagList(\n    actionButton(ns(\"my_button\"), \"Click me\"),\n    plotOutput(ns(\"my_plot\"))\n  )\n}\n\n\nui_module_ui(\"1\") will return 1-my_button, 1-my_plot\nui_module_ui('2') will return 2-my_button, 2-my_plot"
+  },
+  {
+    "objectID": "nest/ui.html",
+    "href": "nest/ui.html",
+    "title": "UI topics",
+    "section": "",
+    "text": "These are topics that are relevant for understand how the UI is made of.\n\nlibrary(htmltools) # imported by shiny\ntagList(\n  h1(\"Title\"),\n  h2(\"Header text\"),\n  p(\"Text here\")\n)\n\nTitle\nHeader text\nText here\n\n\n\ntags$html(\n  tags$head(\n    tags$title('My first page')\n  ),\n  tags$body(\n    h1('My first heading'),\n    p('My first paragraph, with some ', strong('bold'), ' text.'),\n    div(\n      id = 'myDiv', \n      class = 'simpleDiv',\n      'Here is a div with some attributes.'\n     )\n  )\n)\n\n\n\nMy first heading\n\nMy first paragraph, with some \nbold\n text.\n\nHere is a div with some attributes."
+  },
+  {
+    "objectID": "nest/shiny_test.html",
+    "href": "nest/shiny_test.html",
+    "title": "Shinylive extension to Quarto website",
+    "section": "",
+    "text": "Quarto extension: shinylive\nAs you may know, it is not possible to set format: shinylive in the YAML header of a quarto document when the project type is website. A good way to embed a shinylive session in a quarto website is to use webR.\nThis article documents how this is done."
+  },
+  {
+    "objectID": "nest/shiny_test.html#example",
+    "href": "nest/shiny_test.html#example",
+    "title": "Shinylive extension to Quarto website",
+    "section": "Example",
+    "text": "Example\n#| '!! shinylive warning !!': |\n#|   shinylive does not work in self-contained HTML documents.\n#|   Please set `embed-resources: false` in your metadata.\n#| standalone: true\n#| viewerHeight: 800\n#| components: [editor, viewer]\n#| layout: vertical\nlibrary(shiny)\nui &lt;- fluidPage(\n  titlePanel(\"Hello Shiny!\"),\n  sidebarLayout(\n    sidebarPanel(\n      sliderInput(\n        inputId = \"bins\",\n        label = \"Number of bins:\",\n        min = 1,\n        max = 50,\n        value = 30\n      )\n    ),\n    mainPanel(\n      plotOutput(outputId = \"distPlot\")\n    )\n  )\n)\nserver &lt;- function(input, output) {\n  output$distPlot &lt;- renderPlot({\n    x &lt;- faithful$waiting\n    bins &lt;- seq(min(x), max(x), length.out = input$bins + 1)\n    hist(x,\n      breaks = bins, col = \"#75AADB\", border = \"white\",\n      xlab = \"Waiting time to next eruption (in mins)\",\n      main = \"Histogram of waiting times\"\n    )\n  })\n}\nshinyApp(ui = ui, server = server)"
+  },
+  {
+    "objectID": "nest/shinylive_qt.html",
+    "href": "nest/shinylive_qt.html",
+    "title": "Shinylive extension to Quarto website",
+    "section": "",
+    "text": "Quarto extension: shinylive\nAs you may know, it is not possible to set format: shinylive in the YAML header of a quarto document when the project type is website. A good way to embed a shinylive session in a quarto website is to use webR.\nThis article documents how this is done."
+  },
+  {
+    "objectID": "nest/shinylive_qt.html#example",
+    "href": "nest/shinylive_qt.html#example",
+    "title": "Shinylive extension to Quarto website",
+    "section": "Example",
+    "text": "Example\n#| '!! shinylive warning !!': |\n#|   shinylive does not work in self-contained HTML documents.\n#|   Please set `embed-resources: false` in your metadata.\n#| standalone: true\n#| viewerHeight: 800\n#| components: [editor, viewer]\n#| layout: vertical\nlibrary(shiny)\nui &lt;- fluidPage(\n  titlePanel(\"Hello Shiny!\"),\n  sidebarLayout(\n    sidebarPanel(\n      sliderInput(\n        inputId = \"bins\",\n        label = \"Number of bins:\",\n        min = 1,\n        max = 50,\n        value = 30\n      )\n    ),\n    mainPanel(\n      plotOutput(outputId = \"distPlot\")\n    )\n  )\n)\nserver &lt;- function(input, output) {\n  output$distPlot &lt;- renderPlot({\n    x &lt;- faithful$waiting\n    bins &lt;- seq(min(x), max(x), length.out = input$bins + 1)\n    hist(x,\n      breaks = bins, col = \"#75AADB\", border = \"white\",\n      xlab = \"Waiting time to next eruption (in mins)\",\n      main = \"Histogram of waiting times\"\n    )\n  })\n}\nshinyApp(ui = ui, server = server)"
   }
 ]

@@ -4,6 +4,8 @@
     "items": [
       "/nest/shiny_101.html",
       "/nest/shiny_reactivity.html",
+      "/nest/ui.html",
+      "/nest/shinylive_qt.html",
       "/nest/teal_101.html",
       "/nest/teal_custom.html"
     ]

@@ -8,6 +8,7 @@ categories: [Shiny]
 sidebar: false
 code-block-bg: true
 code-block-border-left: true
+highlight-style: tango
 format: 
   html:
     toc: true
@@ -15,9 +16,6 @@ format:
     code-fold: false
     code-tools: false
 ---
-
-
-Reactive programming 
 
 
 Key idea: specify a graph of dependencies, so that when an input changes, all related output are updated automatically.
@@ -167,13 +165,80 @@ server <- function(input, output){
 ```
 
 
+### Observe, observeEvent
+
+`shiny::observe` creates **observer**. It updates input's value. Does not have a return value. It gets executed when the reactive values (e.g. `input$value`) it depends on changes.
+
+Common use: `updateSelectInput, updateSliderInput, updateTextInput` to change the input value.
+
+```{r}
+#| eval: false
+
+# example from custom module
+shiny::observe({
+  shiny::updateSelectInput( 
+    session,
+    "dataset",
+    choices = names(data())
+  )
+})
+```
+
+This observe block runs every time input data changes.
+
+`shiny::observeEvent` is a special case of `observe`. It only focuses on one specific change. That is why it has an additional argument, `eventExpr`, which specifies the event to listen to.
+
+```{r}
+#| eval: false
+
+# specify what to watch
+observeEvent(input$dataset, { 
+  req(input$dataset) 
+  numeric_vars <- names(data()[[input$dataset]])[sapply(data()[[input$dataset]], is.numeric)]
+  shiny::updateSelectInput( # <3>
+    session,  
+    "variable", 
+    choices = numeric_vars)
+})
+```
 
 
+## NS and ns
+
+Namespace. `NS` is the **function**, `ns` is the object created by `NS(id)`.
+
+* `NS` takes one argument: `id`. It returns a function (a namespacing function).
+* `ns <- NS(id)` is the standard first line of a UI module function.
+* `ns` function remembers the ID you assigned.
+
+```{r}
+#| eval: true
+
+ns <- shiny::NS(namespace = '1')
+ns('my_button') # returns "1-my_button"
+```
 
 
+The purpose of having NS and namespace is to avoid ID collisions when you use the same module multiple times in a single app.
+
+```{r}
+#| eval: false
+
+ui_module_ui <- function(id) {
+  # 1. Create the namespacing function `ns`
+  ns <- shiny::NS(id) 
+
+  # 2. Use `ns` to wrap every ID
+  tagList(
+    actionButton(ns("my_button"), "Click me"),
+    plotOutput(ns("my_plot"))
+  )
+}
+```
 
 
-
+* `ui_module_ui("1")` will return `1-my_button`, `1-my_plot`
+* `ui_module_ui('2')` will return `2-my_button`, `2-my_plot`
 
 
 

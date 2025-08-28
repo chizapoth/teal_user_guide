@@ -1,0 +1,112 @@
+---
+title: "Shinylive extension to Quarto website"
+description: |
+  Short notes on this topic
+author: "Chi Zhang"
+date: "2025-08-28"
+categories: [Shiny]
+sidebar: false
+code-block-bg: true
+code-block-border-left: false
+highlight-style: tango
+filters: 
+  - shinylive
+format: 
+  html:
+    toc: true
+    toc-depth: 2
+    code-fold: false
+    code-tools: false
+---
+
+[Quarto extension: shinylive](https://quarto-ext.github.io/shinylive/)
+
+
+
+As you may know, it is not possible to set `format: shinylive` in the YAML header of a quarto document when the project type is website. A good way to embed a shinylive session in a quarto website is to use **webR**. 
+
+This article documents how this is done. 
+
+### Install the extension
+
+First install the quarto extension: shinylive. 
+
+In your terminal (not R console) of the project, 
+
+```bash
+quarto add quarto-ext/shinylive
+```
+
+This creates a folder `_extensions` at the root of the prject. If you have other extensions, you can also add them in this way. 
+
+Remember that the quarto extensions are project-specific. If you have a different quarto project, you'll have to do this step again.
+
+
+### What to include in the YAML
+
+In the quarto file where you wish to embed the shinylive session, 
+
+```yaml
+format: 
+  html:
+    toc: true
+    toc-depth: 2
+filters: 
+  - shinylive
+```
+
+
+### What to include in the code block? 
+
+The code block type now is `{shinylive-r}`. It is slightly different from the standard R code block, so the typical special options do not work here (e.g. echo)
+
+* standalone: needs to be true, so that the entire app is included here
+* components: if you want to show code, add `[editor, viewer]`. If not, only the app is shown
+* layout: if you want to show the app below the code, specify `verticle` in the layout option. Otherwise they will be displayed side by side.
+
+
+```r
+#| standalone: true
+#| viewerHeight: 420 
+#| components: [editor, viewer] 
+#| layout: vertical
+```
+
+## Example
+
+```{shinylive-r}
+#| standalone: true
+#| viewerHeight: 800
+#| components: [editor, viewer]
+#| layout: vertical
+library(shiny)
+ui <- fluidPage(
+  titlePanel("Hello Shiny!"),
+  sidebarLayout(
+    sidebarPanel(
+      sliderInput(
+        inputId = "bins",
+        label = "Number of bins:",
+        min = 1,
+        max = 50,
+        value = 30
+      )
+    ),
+    mainPanel(
+      plotOutput(outputId = "distPlot")
+    )
+  )
+)
+server <- function(input, output) {
+  output$distPlot <- renderPlot({
+    x <- faithful$waiting
+    bins <- seq(min(x), max(x), length.out = input$bins + 1)
+    hist(x,
+      breaks = bins, col = "#75AADB", border = "white",
+      xlab = "Waiting time to next eruption (in mins)",
+      main = "Histogram of waiting times"
+    )
+  })
+}
+shinyApp(ui = ui, server = server)
+```

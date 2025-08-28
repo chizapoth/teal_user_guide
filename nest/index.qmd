@@ -1,13 +1,15 @@
 ---
-title: "Catelogue"
+title: "Catalog"
 listing:
   - id: shiny
     max-description-length: 500
     image-height: 150px
-    fields: [title, description]
+    fields: [title]
     contents: 
       - "shiny_101.qmd"
       - "shiny_reactivity.qmd"
+      - "ui.qmd"
+      - 'shinylive_qt.qmd'
     type: table
     grid-item-border: false
     sort-ui: false
@@ -18,7 +20,7 @@ listing:
   - id: teal
     max-description-length: 500
     image-height: 150px
-    fields: [title, description]
+    fields: [title]
     contents: 
       - "teal_101.qmd"
       - "teal_custom.qmd"

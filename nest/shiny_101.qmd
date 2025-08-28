@@ -8,6 +8,7 @@ categories: [Shiny]
 sidebar: false
 code-block-bg: true
 code-block-border-left: true
+highlight-style: tango
 format: 
   html:
     toc: true
@@ -138,9 +139,7 @@ module_server <- function(id){
       
     }
   )
-  
 }
-
 ```
 
 

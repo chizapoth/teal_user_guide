@@ -20,7 +20,7 @@ ADSL <- data[["ADSL"]]
 
 
 # choices_selected is from teal.transform
-# define arm 
+# define arm
 # ARMCD: arm code (a, b, c)
 # ARM: arm name (drug, placebo, combination)
 # (probably always fixed)
@@ -38,12 +38,10 @@ demog_vars_adsl <- ADSL |>
   names()
 
 
-
 # these are the excluded ones (study ID, subject ID, ...)
 # ADSL |>
 #   select(!(where(is.numeric) | where(is.factor))) |>
 #   names()
-
 
 # tm_data_table -----
 mod_dt <- tm_data_table("Data Table")
@@ -52,7 +50,7 @@ mod_dt <- tm_data_table("Data Table")
 # tm_t_summary -----
 mod_summary <- tm_t_summary(
   label = "Demographic Table",
-  
+
   # add which dataset to use
   dataname = "ADSL",
   arm_var = cs_arm_var,
@@ -69,17 +67,15 @@ app <- init(
   # single data source: adsl
   data = data,
   modules = list(
-    
     # module 1, display data
     mod_dt,
-    
+
     # module 2, summary table
     mod_summary
   )
   # for medical history: use data 2
   # data = data2,
   #module = mod_mh
-  
 )
 
 

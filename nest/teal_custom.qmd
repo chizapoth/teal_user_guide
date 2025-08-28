@@ -8,6 +8,7 @@ categories: [Teal]
 sidebar: false
 code-block-bg: true
 code-block-border-left: true
+highlight-style: tango
 format: 
   html:
     toc: true
@@ -15,6 +16,185 @@ format:
     code-fold: false
     code-tools: false
 ---
+
+The technology underneath is **shiny modules**.
+
+There are 4 steps: 
+
+* create UI
+* create server (this is probably the most confusing part)
+* create custom `teal` module function to wrap the server and UI together
+* integrate into the app
+
+
+## UI part
+
+Two things to provide: data and variable. 
+
+```{r}
+#| eval: false
+library(teal)
+
+# UI function for the custom histogram module
+histogram_module_ui <- function(id) {
+  ns <- shiny::NS(id)
+  shiny::tagList(
+    shiny::selectInput(
+      ns("dataset"),
+      "Select Dataset",
+      choices = c("iris", "mtcars")
+    ),
+    shiny::selectInput(
+      ns("variable"),
+      "Select Variable",
+      choices = c(names(iris), names(mtcars))
+    ),
+    shiny::plotOutput(ns("histogram_plot")),
+    shiny::verbatimTextOutput(ns("plot_code")) # To display the reactive plot code
+  )
+}
+```
+
+
+## Server part
+
+Requires `teal_data` object. 
+
+To call the data, use `data()` - treat it as a function.
+
+```{r}
+#| eval: false
+
+# names of data: gives list of datasets inside the teal_data obj
+names(data())
+# access specific data
+data()[[input$dataset]] # might also just use $
+```
+
+
+```{r}
+#| eval: false
+
+# Server function for the custom histogram module with injected variables in within()
+histogram_module_server <- function(id, data) {
+  
+  moduleServer(id, function(input, output, session) {
+   
+    shiny::observe({ #<1> 
+      shiny::updateSelectInput( 
+        session,
+        "dataset",
+        choices = names(data())
+      )
+    })
+
+    observeEvent(input$dataset, { # <2>
+      req(input$dataset) # Ensure dataset is selected
+      numeric_vars <- names(data()[[input$dataset]])[sapply(data()[[input$dataset]], is.numeric)]
+      shiny::updateSelectInput( # <3>
+        session,  
+        "variable", 
+        choices = numeric_vars)
+    })
+
+    
+    
+    # Create a reactive `teal_data` object with the histogram plot
+    result <- reactive({
+      req(input$dataset, input$variable) # Ensure dataset and variable are selected
+
+      # Create a new teal_data object with the histogram plot
+      new_data <- within( # <4>
+        data(),
+        {
+          my_plot <- hist( # <5>
+            input_dataset[[input_vars]],
+            las = 1,
+            main = paste("Histogram of", input_vars),
+            xlab = input_vars,
+            col = "lightblue",
+            border = "black"
+          )
+        },
+        
+        input_dataset = as.name(input$dataset), # <6>
+        input_vars = input$variable # <7>
+      )
+      new_data
+    })
+
+    # Render the histogram from the updated teal_data object
+    output$histogram_plot <- shiny::renderPlot({ # <8>
+      result()[["my_plot"]] 
+    })
+
+    # Reactive expression to get the generated code for the plot
+    output$plot_code <- shiny::renderText({
+      teal.code::get_code(result()) # <9>
+    })
+  })
+}
+```
+
+1. Update dataset choices based on available datasets in teal_data. `observe` is used because it needs to run every time data changes.
+2. `observeEvent` watches the changes in dataset selection. It gets updated when it changes - because different datasets have different variable names.
+3. Update variable choices based on selected dataset, only including numeric variables
+4. This is a modified version of `data()`. Injected `input$dataset` and `input$variable` into `within()`.
+5. This is where the function is positioned
+6. Replace `input_dataset` with input$dataset
+7. Replace `input_vars` with input$variable
+8. Access and render the plot stored in `new_data`
+9. Retrieve and display the code for the updated `teal_data` object
+
+
+
+## Custom module function
+
+```{r}
+#| eval: false
+
+create_histogram_module <- function(label = "Histogram Module") {
+  teal::module( # <1>
+    label = label,
+    ui = histogram_module_ui,
+    server = histogram_module_server,
+    datanames = "all"  # <2>
+  )
+}
+```
+
+1. use `teal::module()` to wrap the UI and server together.
+2. the module has access to all datasets in the `teal_data` object. Datasets with names starting with `.` are not included
+
+## Integration 
+
+Finally, embed the module into your app.
+
+```{r}
+#| eval: false
+# Define datasets in `teal_data`
+data_obj <- teal_data(
+  iris = iris,
+  mtcars = mtcars
+)
+
+# Initialize the teal app
+app <- init(
+  data = data_obj, # <1>
+  modules = modules(create_histogram_module()) # <2>
+)
+
+# Run the app
+if (interactive()) {
+  shiny::shinyApp(ui = app$ui, server = app$server)
+}
+```
+
+1. call the data object created above
+2. call the custom module function created above. Do not forget the `()`.
+
+
+
 
 
 
